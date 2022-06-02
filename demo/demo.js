@@ -1,6 +1,6 @@
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const i_button = require('..')
+const button = require('..')
 const protocol_maker = require('protocol-maker')
 
 var id = 0
@@ -15,26 +15,58 @@ function demo () {
         const [from] = head
         // handle
         if (type === 'click') return handle_click_event(msg)
+        if (type === 'help') console.log({data})
     }
-//------------------------------------------
+//------------------------------------------    
+    console.log('Button help', button.help()) // get opts & the defaults for button component
+    
     // buttons
-    const primary = i_button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
-    const current1 = i_button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
-    const current2 = i_button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
-    const disabled = i_button({ name: 'disable', text: 'Disabled', state: { disabled: true, }, theme: `` }, contacts.add('disable'))
+    const primary = button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
+    const current1 = button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
+    const current2 = button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
+    const disabled = button({ name: 'disable', text: 'Disabled', status: { disabled: true, }, theme: `` }, contacts.add('disable'))
 
     // Tab element
-    const tab1 = i_button({ name: 'tab1', text: 'Tab1', state: { current: true, }, theme: `` }, contacts.add('tab1'))
-    const tab2 = i_button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
-    const tab3 = i_button({ name: 'tab3', text: 'Tab3', theme: `` }, contacts.add('tab3'))
+    const tab1 = button({ name: 'tab1', text: 'Tab1', 
+        theme: `
+            :host(i-button) {
+                --color: var(--color-green);
+                --current_color: var(--color-green);
+                --icon_fill: var(--color-green);
+                --icon_fill_hover: var(--color-green);
+                --icon_size: 24px;             
+            }
+        ` 
+    }, contacts.add('tab1'))
+    const tab2 = button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
+    const tab3 = button({ name: 'tab3', text: 'Tab3', status: { current: true, },theme: `` }, contacts.add('tab3'))
 
     // Tab & icon
-    const tab4 = i_button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], theme: `` }, contacts.add('notice'))
-    const tab5 = i_button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], theme: `` }, contacts.add('warning'))
-    const tab6 = i_button({ name: 'search', text: 'Search', icons: [{name: 'search'}], state: { disabled: true, }, theme: `` }, contacts.add('search'))
+    const tab4 = button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], 
+        theme: ``}, contacts.add('notice'))
+    const tab5 = button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], status: { disabled: true, }, theme: `` }, contacts.add('warning'))
+    const tab6 = button({ name: 'search', text: 'Search', icons: [{name: 'search'}], 
+        theme: `
+            :host(i-button) {
+                --color-maya-blue: 205, 96%, 72%;
+                display: grid;
+                justify: items-center;
+                align: items-center;
+            }
+            :host(i-button) g {
+                --icon-fill: var(--color-maya-blue); 
+            }
+            :host(i-button:hover) g {
+                --icon-fill: var(--color-maya-blue); 
+            }
+            :host(i-button) .text {
+                color: var(--color-maya-blue);
+            }
+        `  
+    }, contacts.add('search'))
 
     // buttons
-    const cancel = i_button({ name: 'cancel', icons: [{name: 'cross'}],
+    const cancel = button({ name: 'cancel', icons: [{name: 'cross'}],
         theme: `
             :host(i-button) {
                 --color-flame: 15, 80%, 50%;
@@ -49,14 +81,30 @@ function demo () {
         `
     }, contacts.add('cancel'))
 
-    const confirm = i_button({ name: 'confirm', icons: [{name: 'check'}], theme: ``}, contacts.add('confirm'))
-    const previous = i_button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
-    const next = i_button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
-    const filter = i_button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], state: { current: true }, theme: ``}, contacts.add('filter'))
-    const dropdown = i_button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
-    const option = i_button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
-    const option1 = i_button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
+    const confirm = button({ name: 'confirm', icons: [{name: 'check'}], 
+        theme: `
+        :host(i-button) {
+            --color-lincoln-green: 97, 100%, 18%;
+            --color-green: 136, 82%, 38%;
+        }
+        :host(i-button) g {
+            --icon-fill: var(--color-green);            
+        }
+        :host(i-button:hover) {
+            --bg-color: var(--color-lincoln-green);
+        }
+    `
+    }, contacts.add('confirm'))
+    const previous = button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
+    const next = button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
+    const filter = button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], status: { current: true }, theme: ``}, contacts.add('filter'))
+    const dropdown = button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
+    const option = button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
+    const option1 = button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
 
+    // get help about button1 (current state etc.)
+    const $button1 = contacts.by_name['button1']
+    $button1.notify($button1.make({ to: $button1.address, type: 'help'}))
     
     // content
     const content = bel`
@@ -90,9 +138,29 @@ function demo () {
 
     return app
 
+    
     // handle events
     function handle_click_event ({head, type, refs, data}) {
         console.log('New click', {head, type, refs, data} )
+        const [from, to, msg_id] = head
+        const $from = contacts.by_address[from]
+        if (contacts.by_address[from].name === 'button1') {
+            const new_theme = `
+                :host(i-button) {
+                    --color-flame: 15, 80%, 50%;
+                    --color-red: 358, 99%, 53%;
+                }
+                :host(i-button) g {
+                    --icon-fill: var(--color-red);            
+                }
+                :host(i-button:hover) {
+                    --bg-color: var(--color-flame);
+                }
+            `
+            $from.notify($from.make({ to: $from.address, type: 'update', data: { 
+                text: 'Updated', icons: [{ name: 'play' }], sheets: [0, 1, new_theme] // keep current shadow.adoptedStyleSheets[0] on pos 0, shadow.adoptedStyleSheets[1] on pos 1 and add new_theme on shadow.adoptedStyleSheets[2]
+             } }))                         
+        }
     }
 
 }
@@ -327,7 +395,6 @@ img {
     height: 100%;
 }
 .container {
-    grid-area: container;
     overflow: hidden scroll;
     height: 100%;
 }
@@ -353,6 +420,10 @@ img {
 }
 .thumb i-button:first-child {
    margin-bottom: 20px;
+}
+nav {
+    display: grid;
+    gap:15px;
 }
 `
 

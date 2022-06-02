@@ -1,7 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const i_button = require('..')
+const button = require('..')
 const protocol_maker = require('protocol-maker')
 
 var id = 0
@@ -16,26 +16,58 @@ function demo () {
         const [from] = head
         // handle
         if (type === 'click') return handle_click_event(msg)
+        if (type === 'help') console.log({data})
     }
-//------------------------------------------
+//------------------------------------------    
+    console.log('Button help', button.help()) // get opts & the defaults for button component
+    
     // buttons
-    const primary = i_button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
-    const current1 = i_button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
-    const current2 = i_button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
-    const disabled = i_button({ name: 'disable', text: 'Disabled', state: { disabled: true, }, theme: `` }, contacts.add('disable'))
+    const primary = button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
+    const current1 = button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
+    const current2 = button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
+    const disabled = button({ name: 'disable', text: 'Disabled', status: { disabled: true, }, theme: `` }, contacts.add('disable'))
 
     // Tab element
-    const tab1 = i_button({ name: 'tab1', text: 'Tab1', state: { current: true, }, theme: `` }, contacts.add('tab1'))
-    const tab2 = i_button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
-    const tab3 = i_button({ name: 'tab3', text: 'Tab3', theme: `` }, contacts.add('tab3'))
+    const tab1 = button({ name: 'tab1', text: 'Tab1', 
+        theme: `
+            :host(i-button) {
+                --color: var(--color-green);
+                --current_color: var(--color-green);
+                --icon_fill: var(--color-green);
+                --icon_fill_hover: var(--color-green);
+                --icon_size: 24px;             
+            }
+        ` 
+    }, contacts.add('tab1'))
+    const tab2 = button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
+    const tab3 = button({ name: 'tab3', text: 'Tab3', status: { current: true, },theme: `` }, contacts.add('tab3'))
 
     // Tab & icon
-    const tab4 = i_button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], theme: `` }, contacts.add('notice'))
-    const tab5 = i_button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], theme: `` }, contacts.add('warning'))
-    const tab6 = i_button({ name: 'search', text: 'Search', icons: [{name: 'search'}], state: { disabled: true, }, theme: `` }, contacts.add('search'))
+    const tab4 = button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], 
+        theme: ``}, contacts.add('notice'))
+    const tab5 = button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], status: { disabled: true, }, theme: `` }, contacts.add('warning'))
+    const tab6 = button({ name: 'search', text: 'Search', icons: [{name: 'search'}], 
+        theme: `
+            :host(i-button) {
+                --color-maya-blue: 205, 96%, 72%;
+                display: grid;
+                justify: items-center;
+                align: items-center;
+            }
+            :host(i-button) g {
+                --icon-fill: var(--color-maya-blue); 
+            }
+            :host(i-button:hover) g {
+                --icon-fill: var(--color-maya-blue); 
+            }
+            :host(i-button) .text {
+                color: var(--color-maya-blue);
+            }
+        `  
+    }, contacts.add('search'))
 
     // buttons
-    const cancel = i_button({ name: 'cancel', icons: [{name: 'cross'}],
+    const cancel = button({ name: 'cancel', icons: [{name: 'cross'}],
         theme: `
             :host(i-button) {
                 --color-flame: 15, 80%, 50%;
@@ -50,14 +82,30 @@ function demo () {
         `
     }, contacts.add('cancel'))
 
-    const confirm = i_button({ name: 'confirm', icons: [{name: 'check'}], theme: ``}, contacts.add('confirm'))
-    const previous = i_button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
-    const next = i_button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
-    const filter = i_button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], state: { current: true }, theme: ``}, contacts.add('filter'))
-    const dropdown = i_button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
-    const option = i_button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
-    const option1 = i_button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
+    const confirm = button({ name: 'confirm', icons: [{name: 'check'}], 
+        theme: `
+        :host(i-button) {
+            --color-lincoln-green: 97, 100%, 18%;
+            --color-green: 136, 82%, 38%;
+        }
+        :host(i-button) g {
+            --icon-fill: var(--color-green);            
+        }
+        :host(i-button:hover) {
+            --bg-color: var(--color-lincoln-green);
+        }
+    `
+    }, contacts.add('confirm'))
+    const previous = button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
+    const next = button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
+    const filter = button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], status: { current: true }, theme: ``}, contacts.add('filter'))
+    const dropdown = button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
+    const option = button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
+    const option1 = button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
 
+    // get help about button1 (current state etc.)
+    const $button1 = contacts.by_name['button1']
+    $button1.notify($button1.make({ to: $button1.address, type: 'help'}))
     
     // content
     const content = bel`
@@ -91,9 +139,29 @@ function demo () {
 
     return app
 
+    
     // handle events
     function handle_click_event ({head, type, refs, data}) {
         console.log('New click', {head, type, refs, data} )
+        const [from, to, msg_id] = head
+        const $from = contacts.by_address[from]
+        if (contacts.by_address[from].name === 'button1') {
+            const new_theme = `
+                :host(i-button) {
+                    --color-flame: 15, 80%, 50%;
+                    --color-red: 358, 99%, 53%;
+                }
+                :host(i-button) g {
+                    --icon-fill: var(--color-red);            
+                }
+                :host(i-button:hover) {
+                    --bg-color: var(--color-flame);
+                }
+            `
+            $from.notify($from.make({ to: $from.address, type: 'update', data: { 
+                text: 'Updated', icons: [{ name: 'play' }], sheets: [0, 1, new_theme] // keep current shadow.adoptedStyleSheets[0] on pos 0, shadow.adoptedStyleSheets[1] on pos 1 and add new_theme on shadow.adoptedStyleSheets[2]
+             } }))                         
+        }
     }
 
 }
@@ -328,7 +396,6 @@ img {
     height: 100%;
 }
 .container {
-    grid-area: container;
     overflow: hidden scroll;
     height: 100%;
 }
@@ -354,6 +421,10 @@ img {
 }
 .thumb i-button:first-child {
    margin-bottom: 20px;
+}
+nav {
+    display: grid;
+    gap:15px;
 }
 `
 
@@ -1696,148 +1767,126 @@ const i_icon = require('datdot-ui-icon')
 var id = 0
 var icon_count = 0
 const sheet = new CSSStyleSheet()
-const default_state = { 
-    opts: {
-        current: false, 
-        disabled: false,
-        theme: [sheet]
-    },
-    // contacts: {}
+const default_opts = { 
+	name: 'i-button',
+	text: '',
+	icons: [],
+	status: {
+		current: false, 
+		disabled: false,
+	},
+	theme: undefined // assigned at the bottom
 }
 
 module.exports = button
 
+button.help = () => { return { opts: default_opts } }
+
 function button (opts, parent_wire) {
-    const {name = 'i-button', text, icons = [], state = default_state, theme = ``} = opts
-    // protocol
-    const initial_contacts = { 'parent': parent_wire }
-    const contacts = protocol_maker('input-number', listen, initial_contacts)
+	const {
+		name = default_opts.name, 
+		text = default_opts.text, 
+		icons = default_opts.icons, 
+		status = default_opts.status, 
+		theme = `` } = opts		
+	
+	const current_state =  { opts: { name, text,	icons, status, sheets: [default_opts.theme, theme] } }
 
-    function listen (msg) {
-        const { head, refs, type, data, meta } = msg // receive msg
-        const [from, to, msg_id] = head
-        const cases = {
-            'update': () => handle_update(data)
-        }
-       const handler = cases[type] || default_handler
-       function default_handler () {
-           console.log('This type is not supported')
-       }
-    }
-    // make button
-    const el = document.createElement('i-button')
-    const shadow = el.attachShadow({mode: 'closed'})
+	// protocol
+	const initial_contacts = { 'parent': parent_wire }
+	const contacts = protocol_maker('input-number', listen, initial_contacts)
 
-    icons.forEach(icon => {
-        shadow.append(i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)))
-    })
-    if (text) {
-        const el = document.createElement('span')
-        el.className = 'text'
-        el.append(text)
-        shadow.append(el)
-    }
-    // set arias
-    if (state.disabled) el.setAttribute(`aria-disabled`, true)
-    if (state.current) el.setAttribute(`aria-current`, true)
+	function listen (msg) {
+			const { head, refs, type, data, meta } = msg // receive msg
+			const [from, to, msg_id] = head
+			if (type === 'help') {
+				const $from = contacts.by_address[from]
+				$from.notify($from.make({ to: $from.address, type: 'help', data: { state: get_current_state() }, refs: { cause: head }}))                         
+			}
+			if (type === 'update') handle_update(data)
+	}
 
-    if (!state.disabled) el.onclick = handle_click
-    el.setAttribute('aria-label', name)
-    el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
+	// make button
+	const el = document.createElement('i-button')
+	const shadow = el.attachShadow({mode: 'closed'})
 
-    const custom_css = new CSSStyleSheet()
-    custom_css.replaceSync(theme)
-    shadow.adoptedStyleSheets = [sheet, custom_css]
+	let text_field = document.createElement('span')
+	text_field.className = 'text'
 
-    return el
+	let i_icons = icons.map(icon => i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)) )
+	i_icons.forEach(i_icon => { shadow.append(i_icon) })
+	
+	if (text) {
+			text_field.innerText = text
+			shadow.append(text_field)
+	}
 
-    // helpers
-    function handle_update (data) {
-        const { text, icons = [], state, theme = `` } = data
-    }
-    // button click
-    function handle_click () {
-        const $parent = contacts.by_name['parent']
-        $parent.notify($parent.make({ to: $parent.address, type: 'click', data: state }))
-    }
+	if (status.disabled) el.setAttribute(`aria-disabled`, true)
+	if (status.current) el.setAttribute(`aria-current`, true)
+
+	if (!status.disabled) el.onclick = handle_click
+	el.setAttribute('aria-label', name)
+	el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
+
+	const custom_theme = new CSSStyleSheet()
+	custom_theme.replaceSync(theme)
+	shadow.adoptedStyleSheets = [sheet, custom_theme]
+
+	return el
+
+	// helpers
+	function handle_update (data) {
+		const { text, icons = [], sheets } = data
+		if (icons.length) {
+			current_state.opts.icons = icons
+			i_icons.forEach(icon => { shadow.removeChild(icon) })
+			i_icons = icons.map(icon => i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)) )
+			i_icons.forEach(i_icon => { shadow.append(i_icon) })
+		}
+		if (text && typeof text !== 'string') {
+			current_state.opts.text = text
+			text_field.innerText = text
+			if (shadow.contains(text_field)) shadow.removeChild(text_field)
+			shadow.append(text_field)
+		}
+		if (sheets) {
+			const new_sheets = sheets.map(sheet => {
+				if (typeof sheet === 'string') {
+					current_state.opts.sheets.push(sheet)
+					const new_sheet = new CSSStyleSheet()
+					new_sheet.replaceSync(sheet)
+					return new_sheet
+					} 
+					if (typeof sheet === 'number') return shadow.adoptedStyleSheets[sheet]
+			})
+			shadow.adoptedStyleSheets = new_sheets
+		}
+	}
+	// button click
+	function handle_click () {
+			const $parent = contacts.by_name['parent']
+			$parent.notify($parent.make({ to: $parent.address, type: 'click' }))
+	}
+	// get current state
+	function get_current_state () {
+		return  {
+			opts: current_state.opts,
+			contacts
+		}
+	}
 
 }
-
-sheet.replaceSync(`
+const default_theme = `
 :root {
     --b: 0, 0%;
     --r: 100%, 50%;
-    --color-white: var(--b), 100%;
     --color-black: var(--b), 0%;
-    --color-dark: 223, 13%, 20%;
-    --color-deep-black: 222, 18%, 11%;
-    --color-blue: 214, var(--r);
-    --color-red: 358, 99%, 53%;
-    --color-amaranth-pink: 331, 86%, 78%;
-    --color-persian-rose: 323, 100%, 56%;
-    --color-orange: 35, 100%, 58%;
-    --color-deep-saffron: 31, 100%, 56%;
-    --color-ultra-red: 348, 96%, 71%;
-    --color-flame: 15, 80%, 50%;
-    --color-verdigris: 180, 54%, 43%;
-    --color-maya-blue: 205, 96%, 72%;
-    --color-slate-blue: 248, 56%, 59%;
-    --color-blue-jeans: 204, 96%, 61%;
-    --color-dodger-blue: 213, 90%, 59%;
-    --color-light-green: 127, 86%, 77%;
-    --color-lime-green: 127, 100%, 40%;
-    --color-slimy-green: 108, 100%, 28%;
-    --color-maximum-blue-green: 180, 54%, 51%;
-    --color-green: 136, 81%, 34%;
-    --color-light-green: 97, 86%, 77%;
-    --color-lincoln-green: 97, 100%, 18%;
-    --color-yellow: 44, 100%, 55%;
-    --color-chrome-yellow: 39, var(--r);
-    --color-bright-yellow-crayola: 35, 100%, 58%;
-    --color-green-yellow-crayola: 51, 100%, 83%;
-    --color-purple: 283, var(--r);
-    --color-medium-purple: 269, 100%, 70%;
-    --color-grey33: var(--b), 20%;
-    --color-grey66: var(--b), 40%;
-    --color-grey70: var(--b), 44%;
-    --color-grey88: var(--b), 53%;
-    --color-greyA2: var(--b), 64%;
-    --color-greyC3: var(--b), 76%;
-    --color-greyCB: var(--b), 80%;
-    --color-greyD8: var(--b), 85%;
-    --color-greyD9: var(--b), 85%;
-    --color-greyE2: var(--b), 89%;
-    --color-greyEB: var(--b), 92%;
-    --color-greyED: var(--b), 93%;
-    --color-greyEF: var(--b), 94%;
     --color-greyF2: var(--b), 95%;
-    --transparent: transparent;
-    --define-font: *---------------------------------------------*;
-    --snippet-font: Segoe UI Mono, Monospace, Cascadia Mono, Courier New, ui-monospace, Liberation Mono, Menlo, Monaco, Consolas;
-    --size12: 1.2rem;
-    --size14: 1.4rem;
     --size16: 1.6rem;
-    --size18: 1.8rem;
-    --size20: 2rem;
-    --size22: 2.2rem;
-    --size24: 2.4rem;
-    --size26: 2.6rem;
-    --size28: 2.8rem;
-    --size30: 3rem;
-    --size32: 3.2rem;
-    --size36: 3.6rem;
-    --size40: 4rem;
-    --weight100: 100;
     --weight300: 300;
-    --weight400: 400;
-    --weight600: 600;
-    --weight800: 800;
     --primary-color: var(--color-black);
     --primary-bg-color: var(--color-greyF2);
-    --primary-font: Arial, sens-serif;
     --primary-size: var(--size16);
-    --primary-input-radius: 8px;
-    --primary-button-radius: 8px;
 }
 :host(i-button) {
     --size: var(--primary-size);
@@ -1936,8 +1985,8 @@ sheet.replaceSync(`
 }
 :host(i-button[disabled]) g, 
 :host(i-button[disabled]:hover) g, 
-/* define grid */
 :host(i-button) .text {
+    
 }
 :host(i-button) .icon {
     --icon-size: var(--primary-icon-size);
@@ -1948,5 +1997,7 @@ sheet.replaceSync(`
 :host(i-button:hover) .icon {
     --icon-size: var(--primary-icon-size-hover);
 }
-`)
+`
+sheet.replaceSync(default_theme)
+default_opts.theme = default_theme
 },{"datdot-ui-icon":23,"protocol-maker":27}]},{},[1]);
