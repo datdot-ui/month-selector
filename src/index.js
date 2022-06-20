@@ -1,109 +1,103 @@
+const bel = require('bel')
+const csjs = require('csjs-inject')
+const { format, setMonth, getMonth, getYear, getDaysInMonth } = require('date-fns')
 const protocol_maker = require('protocol-maker')
-const i_icon = require('datdot-ui-icon')
+const button = require('datdot-ui-button')
 
 var id = 0
-var icon_count = 0
+var count = 0
 const sheet = new CSSStyleSheet()
-const default_opts = { 
-	name: 'i-button',
-	text: '',
-	icons: [],
-	status: {
-		current: false, 
-		disabled: false,
-	},
-	theme: undefined // assigned at the bottom
+const default_opts = {
+	name: 'calendar-month',
+	pos: 0,
+	theme: get_theme()
 }
+sheet.replaceSync(default_opts.theme)
 
-module.exports = button
+module.exports = calendar_month
 
-button.help = () => { return { opts: default_opts } }
+calendar_month.help = () => { return { opts: default_opts } }
 
-function button (opts, parent_wire) {
-	const {
-		name = default_opts.name, 
-		text = default_opts.text, 
-		icons = default_opts.icons, 
-		status = default_opts.status, 
-		theme = `` } = opts		
+function calendar_month(opts, parent_wire) {
+	const { 
+		name = default_opts.name,
+		pos = default_opts.pos,
+		theme = ``
+	} = opts
 	
-	const current_state =  { opts: { name, text,	icons, status, sheets: [default_opts.theme, theme] } }
+	const current_state =  { opts: { name, pos, sheets: [default_opts.theme, theme] } }
 
 	// protocol
-	const initial_contacts = { 'parent': parent_wire }
-	const contacts = protocol_maker('input-number', listen, initial_contacts)
+  const initial_contacts = { 'parent': parent_wire }
+  const contacts = protocol_maker('input-number', listen, initial_contacts)
 
-	function listen (msg) {
-			const { head, refs, type, data, meta } = msg // receive msg
-			const [from, to, msg_id] = head
+  function listen (msg) {
+      const { head, refs, type, data, meta } = msg // receive msg
+      const [from] = head
+      const name = contacts.by_address[from].name
+      console.log('Cal month', { type, from, name, msg, data })
 			if (type === 'help') {
 				const $from = contacts.by_address[from]
 				$from.notify($from.make({ to: $from.address, type: 'help', data: { state: get_current_state() }, refs: { cause: head }}))                         
 			}
-			if (type === 'update') handle_update(data)
-	}
+      if (type === 'update') handle_update(data)
+  }
 
-	// make button
-	const el = document.createElement('i-button')
+	// make calendar month
+	let date 
+	if (!pos) date = new Date()
+	else date = setMonth(new Date(), pos)
+	if (!pos && pos !== 0) pos = getMonth(date)
+	let year = getYear(date)
+	let month = format(date, 'MMMM')
+	
+	const el = document.createElement('calendar-month')
 	const shadow = el.attachShadow({mode: 'closed'})
 
-	let text_field = document.createElement('span')
-	text_field.className = 'text'
+	const title = document.createElement('h3')
+	title.append(month, ' ', year)
+	title.classList.add('title')
 
-	let i_icons = icons.map(icon => i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)) )
-	i_icons.forEach(i_icon => { shadow.append(i_icon) })
+	let path = 'https://raw.githubusercontent.com/datdot-ui/icon/main/src/svg/'
+	const prev = button({ name: 'prev', icons: [{ name: 'arrow-left', path }] }, contacts.add('prev'))
+	prev.onclick = () => handle_onclick(prev)
+	const next = button({ name: 'next', icons: [{ name: 'arrow-right', path}] }, contacts.add('next'))
+	next.onclick = () => handle_onclick(next)
 	
-	if (text) {
-			text_field.innerText = text
-			shadow.append(text_field)
-	}
-
-	if (status.disabled) el.setAttribute(`aria-disabled`, true)
-	if (status.current) el.setAttribute(`aria-current`, true)
-
-	if (!status.disabled) el.onclick = handle_click
-	el.setAttribute('aria-label', name)
-	el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
+	var header = document.createElement('div')
+	header.append(prev, title, next)
+	header.classList.add('calendar-header')
 
 	const custom_theme = new CSSStyleSheet()
 	custom_theme.replaceSync(theme)
 	shadow.adoptedStyleSheets = [sheet, custom_theme]
 
-	return el
+	shadow.append(header)
 
-	// helpers
+	return el
+	
+	function handle_onclick (target) {
+		const name = target.getAttribute('aria-label')
+		const $parent = contacts.by_name['parent']
+		$parent.notify($parent.make({ to: $parent.address, type: 'click', data: { name }}))
+	} 
+
 	function handle_update (data) {
-		const { text, icons = [], sheets } = data
-		if (icons.length) {
-			current_state.opts.icons = icons
-			i_icons.forEach(icon => { shadow.removeChild(icon) })
-			i_icons = icons.map(icon => i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)) )
-			i_icons.forEach(i_icon => { shadow.append(i_icon) })
-		}
-		if (text && typeof text !== 'string') {
-			current_state.opts.text = text
-			text_field.innerText = text
-			if (shadow.contains(text_field)) shadow.removeChild(text_field)
-			shadow.append(text_field)
-		}
-		if (sheets) {
-			const new_sheets = sheets.map(sheet => {
-				if (typeof sheet === 'string') {
-					current_state.opts.sheets.push(sheet)
-					const new_sheet = new CSSStyleSheet()
-					new_sheet.replaceSync(sheet)
-					return new_sheet
-					} 
-					if (typeof sheet === 'number') return shadow.adoptedStyleSheets[sheet]
-			})
-			shadow.adoptedStyleSheets = new_sheets
+		const { pos } = data
+		if (pos || pos === 0) {
+			current_state. pos = pos
+			update_month(pos)
 		}
 	}
-	// button click
-	function handle_click () {
-			const $parent = contacts.by_name['parent']
-			$parent.notify($parent.make({ to: $parent.address, type: 'click' }))
+
+	function update_month (pos) {
+		let date = setMonth(new Date(), pos)
+		let year = getYear(date)
+		let month = format(date, 'MMMM')
+
+		title.innerHTML = `${month} ${year}`
 	}
+
 	// get current state
 	function get_current_state () {
 		return  {
@@ -111,129 +105,50 @@ function button (opts, parent_wire) {
 			contacts
 		}
 	}
+}
 
+function get_theme () {
+	return `
+	.calendar-header {
+			display: grid;
+			grid-template-rows: auto;
+			grid-template-columns: minmax(25px, 30px) auto minmax(25px, 30px);
+			align-items: center;
+	}
+	.calendar-header  > :nth-last-child(1) {
+		justify-content: end;
+	}
+	.datepicker-header {
+			display: grid;
+			grid-template-rows: 30px;
+			grid-template-columns: auto;
+			align-items: center;
+			margin-bottom: 12px;
+	}
+	.datepicker-header > h3 {
+			margin: 0;
+	}
+	.btn {
+			background: none;
+			border: none;
+			border-radius: 50px;
+			width: 30px;
+			height: 30px;
+			padding: 0;
+			transition: background-color 0.3s ease-in-out;
+			cursor: pointer;
+	}
+	.btn:active, .btn:hover {
+			background-color: #C9C9C9;
+	}
+	.btn:active div > svg path, .btn:hover div > svg path {
+			
+	}
+	.icon svg path {
+			transition: stroke 0.25s ease-in-out;
+	}
+	.title {
+			text-align: center;
+	}
+	`
 }
-const default_theme = `
-:root {
-    --b: 0, 0%;
-    --r: 100%, 50%;
-    --color-black: var(--b), 0%;
-    --color-greyF2: var(--b), 95%;
-    --size16: 1.6rem;
-    --weight300: 300;
-    --primary-color: var(--color-black);
-    --primary-bg-color: var(--color-greyF2);
-    --primary-size: var(--size16);
-}
-:host(i-button) {
-    --size: var(--primary-size);
-    --weight: var(--weight300);
-    --color: var(--primary-color);
-    --color-focus: var(--primary-color-focus);
-    --bg-color: var(--primary-bg-color);
-    --bg-color-focus: var(--primary-bg-color-focus);
-    --opacity: 1;
-    --padding: 12px;
-    --margin: 0;
-    --border-width: 0px;
-    --border-style: solid;
-    --border-color: var(--primary-color);
-    --border-opacity: 1;
-    --border: var(--border-width) var(--border-style) hsla(var(--border-color), var(--border-opacity));
-    --border-radius: var(--primary-radius);
-    --offset_x: 0px;
-    --offset-y: 6px;
-    --blur: 30px;
-    --shadow-color: var(--primary-color);
-    --shadow-opacity: 0;
-    --box-shadow: var(--offset_x) var(--offset-y) var(--blur) hsla( var(--shadow-color), var(--shadow-opacity) );
-    display: inline-grid;
-    grid-auto-flow: column;
-    gap: 5px;
-    justify: content-center;
-    align: items-center;
-    width: var(--width);
-    height: var(--height);
-    max-width: 100%;
-    font-size: var(--size);
-    font-weight: var(--weight);
-    color: hsl( var(--color) );
-    background-color: hsla( var(--bg-color), var(--opacity) );
-    border: var(--border);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: var(--padding);
-    transition: font-size .3s, font-weight .15s, color .3s, background-color .3s, opacity .3s, border .3s, box-shadow .3s ease-in-out;
-    cursor: pointer;
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-}
-:host(i-button:hover) {
-    --size: var(--primary-size-hover);
-    --weight: var(--primary-weight-hover);
-    --color: var(--primary-color-hover);
-    --bg-color: var(--primary-bg-color-hover);
-    --border-color: var(--primary-color-hover);
-    --offset-x: 0;
-    --offset-y: 0;
-    --blur: 50px;
-    --shadow-color: var(--primary-color-hover);
-    --shadow-opacity: 0;
-}
-:host(i-button:hover:focus:active) {
-    --bg-color: var(--primary-bg-color);
-}
-:host(i-button:focus) {
-    --color: var(--color-focus);
-    --bg-color: var(--bg-color-focus);
-    background-color: hsla(var(--bg-color));
-}
-:host(i-button) g {
-    --icon-fill: var(--primary-icon-fill);
-    fill: hsl(var(--icon-fill));
-    transition: fill 0.05s ease-in-out;
-}
-:host(i-button:hover) g {
-  --icon-fill: var(--primary-icon-fill-hover);
-}
-:host(i-button[aria-disabled="true"]) .icon, 
-:host(i-button[aria-disabled="true"]:hover) .icon,
-:host(i-button[aria-current="true"]), :host(i-button[aria-current="true"]:hover) {
-    --size: var(--current-size);
-    --weight: var(--current-weight);
-    --color: var(--current-color);
-    --bg-color: var(--current-bg-color);
-}
-:host(i-button[aria-current="true"]) .icon,  
-:host(i-button[aria-current="true"]:hover) .icon {
-    --icon-size: var(--current-icon-size);
-}
-:host(i-button[aria-current="true"]) g {
-    --icon-fill: var(--current-icon-fill);
-}
-:host(i-button[aria-current="true"]:focus) {
-    --color: var(--color-focus);
-    --bg-color: var(--bg-color-focus);
-}
-:host(i-button[aria-disabled="true"]), :host(i-button[aria-disabled="true"]:hover) {
-    --size: var(--primary-disabled-size);
-    --color: var(--primary-disabled-color);
-    --bg-color: var(--primary-disabled-bg-color);
-    cursor: not-allowed;
-}
-:host(i-button[disabled]) g, 
-:host(i-button[disabled]:hover) g, 
-:host(i-button) .text {
-    
-}
-:host(i-button) .icon {
-    --icon-size: var(--primary-icon-size);
-    display: block;
-    width: var(--icon-size);
-    transition: width 0.25s ease-in-out;
-}
-:host(i-button:hover) .icon {
-    --icon-size: var(--primary-icon-size-hover);
-}
-`
-sheet.replaceSync(default_theme)
-default_opts.theme = default_theme

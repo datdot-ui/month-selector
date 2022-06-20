@@ -1,7 +1,7 @@
 {
-  "name": "datdot-ui-button",
+  "name": "datdot-ui-calendar-month",
   "version": "0.0.4-alpha",
-  "description": "vanilla js button component",
+  "description": "vanilla js calendar-month component",
   "main": "src/index.js",
   "scripts": {
     "start": "budo demo/demo.js:bundle.js --open --live",
@@ -10,25 +10,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datdot-ui/button.git"
+    "url": "git+https://github.com/datdot-ui/calendar-month.git"
   },
   "keywords": [
     "datdot",
     "ui",
     "widget",
-    "button"
+    "calendar-month"
   ],
   "author": "ninabreznik",
   "license": "MIT",
-  "homepage": "https://github.com/datdot-ui/button#readme",
+  "homepage": "https://github.com/datdot-ui/calendar-month#readme",
   "devDependencies": {
     "browserify": "^17.0.0",
-    "budo": "^11.6.4",  
-    "datdot-ui-list": "github:datdot-ui/list#v0.0.1-alpha"
+    "budo": "^11.6.4"
   },
   "dependencies": {
     "bel": "^6.0.0",
-    "datdot-ui-icon": "github:datdot-ui/icon#v0.0.1-alpha",
+    "csjs-inject": "^1.0.1",
+    "datdot-ui-button": "github:datdot-ui/button#v0.0.4-alpha",
+    "date-fns": "^2.28.0",
     "protocol-maker": "github:datdotorg/protocol-maker#v0.0.1-alpha"
   }
 }
