@@ -1,7 +1,7 @@
 {
-  "name": "datdot-ui-calendar-month",
+  "name": "datdot-ui-month-selector",
   "version": "0.0.4-alpha",
-  "description": "vanilla js calendar-month component",
+  "description": "vanilla js month-selector component",
   "main": "src/index.js",
   "scripts": {
     "start": "budo demo/demo.js:bundle.js --open --live",
@@ -10,17 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datdot-ui/calendar-month.git"
+    "url": "git+https://github.com/datdot-ui/month-selector.git"
   },
   "keywords": [
     "datdot",
     "ui",
     "widget",
-    "calendar-month"
+    "month-selector"
   ],
   "author": "ninabreznik",
   "license": "MIT",
-  "homepage": "https://github.com/datdot-ui/calendar-month#readme",
+  "homepage": "https://github.com/datdot-ui/month-selector#readme",
   "devDependencies": {
     "browserify": "^17.0.0",
     "budo": "^11.6.4"
